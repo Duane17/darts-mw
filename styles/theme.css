@@ -1,0 +1,320 @@
+/* DAM (Darts Association of Malawi) Theme Variables */
+:root {
+  /* DAM Brand Colors */
+  --dam-red: #e10600;
+  --dam-green: #0a7a44;
+  --dam-black: #000000;
+  --dam-white: #ffffff;
+  --dam-gold: #f4a300;
+
+  /* Surface Colors */
+  --dam-slate-dark: #0f172a;
+  --dam-light-card: #f3f4f6;
+
+  /* Gradient Overlays */
+  --dam-overlay-dark: linear-gradient(to bottom, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55));
+  --dam-overlay-red: linear-gradient(to bottom, rgba(225, 6, 0, 0.4), rgba(225, 6, 0, 0.4));
+  --dam-overlay-green: linear-gradient(to bottom, rgba(10, 122, 68, 0.4), rgba(10, 122, 68, 0.4));
+}
+
+/* Typography Utilities */
+.dam-heading {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+}
+
+.dam-heading-xl {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+}
+
+.dam-heading-lg {
+  font-size: clamp(1.875rem, 4vw, 2.5rem);
+}
+
+.dam-heading-md {
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+}
+
+/* Diagonal Accent Utilities */
+.dam-diagonal-accent::before,
+.dam-diagonal-accent::after {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  z-index: 1;
+}
+
+.dam-diagonal-accent::before {
+  top: 0;
+  left: 0;
+  background: linear-gradient(45deg, var(--dam-red) 0%, transparent 70%);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.dam-diagonal-accent::after {
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(225deg, var(--dam-green) 0%, transparent 70%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+@media (min-width: 768px) {
+  .dam-diagonal-accent::before,
+  .dam-diagonal-accent::after {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+/* Background Image Utilities */
+.dam-bg-cover {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Animation Utilities */
+.dam-hover-scale {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dam-hover-scale:hover {
+  transform: scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Gold Underline Animation */
+.dam-gold-underline {
+  position: relative;
+}
+
+.dam-gold-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background-color: var(--dam-gold);
+  transition: width 0.3s ease;
+}
+
+.dam-gold-underline:hover::after {
+  width: 100%;
+}
+
+/* Enhanced Focus States for Better Accessibility */
+.dam-focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 0.2s ease;
+}
+
+.dam-focus-ring:focus-visible {
+  outline-color: var(--dam-gold);
+  outline-width: 3px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --dam-overlay-dark: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8));
+    --dam-overlay-red: linear-gradient(to bottom, rgba(225, 6, 0, 0.7), rgba(225, 6, 0, 0.7));
+    --dam-overlay-green: linear-gradient(to bottom, rgba(10, 122, 68, 0.7), rgba(10, 122, 68, 0.7));
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .dam-hover-scale,
+  .dam-gold-underline::after,
+  .dam-focus-ring {
+    transition: none;
+  }
+
+  .dam-hover-scale:hover {
+    transform: none;
+  }
+}
+
+/* Smooth Scrolling for Better UX */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Loading State Animation */
+@keyframes dam-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.dam-loading {
+  animation: dam-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Improved Button Hover States */
+.dam-button-primary {
+  background-color: var(--dam-green);
+  color: var(--dam-white);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dam-button-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.dam-button-primary:hover::before {
+  left: 100%;
+}
+
+.dam-button-primary:hover {
+  background-color: color-mix(in srgb, var(--dam-green) 90%, white);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(10, 122, 68, 0.3);
+}
+
+/* Enhanced Card Interactions */
+.dam-card-interactive {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.dam-card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.dam-card-interactive:active {
+  transform: translateY(-2px);
+}
+
+/* Improved Typography Readability */
+.dam-text-balance {
+  text-wrap: balance;
+}
+
+.dam-text-pretty {
+  text-wrap: pretty;
+}
+
+/* Skip Link Styling */
+.dam-skip-link {
+  position: fixed !important;
+  top: -100px !important;
+  left: 16px !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  padding: 12px 20px !important;
+  text-decoration: none !important;
+  border-radius: 6px !important;
+  font-weight: 700 !important;
+  z-index: 99999 !important;
+  transition: top 0.2s ease !important;
+  border: 3px solid #000000 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8) !important;
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+  font-family: system-ui, -apple-system, sans-serif !important;
+  outline: none !important;
+  transform: translateZ(0) !important;
+  isolation: isolate !important;
+}
+
+.dam-skip-link:focus {
+  top: 16px !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #f4a300 !important;
+  outline: 3px solid #f4a300 !important;
+  outline-offset: 2px !important;
+}
+
+.dam-skip-link:hover {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.dam-skip-link:active {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Dark mode skip link styling */
+@media (prefers-color-scheme: dark) {
+  .dam-skip-link {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+  }
+
+  .dam-skip-link:focus {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-color: #f4a300 !important;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .dam-diagonal-accent::before,
+  .dam-diagonal-accent::after {
+    display: none;
+  }
+
+  .dam-hover-scale:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  * {
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Scrollbar Styling for Better UX */
+.dam-scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--dam-gold) transparent;
+}
+
+.dam-scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dam-scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dam-scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: var(--dam-gold);
+  border-radius: 3px;
+}
+
+.dam-scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--dam-gold) 80%, black);
+}
