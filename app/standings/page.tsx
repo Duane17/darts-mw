@@ -1,15 +1,15 @@
 // app/standings/page.tsx
 import type { Metadata, Viewport } from "next";
-import StandingsTableClient from "@/components/sections/standings/StandingsTableClient";
+import StandingsTable from "@/components/sections/standings/StandingsTable";
+
+export const revalidate = 60; // or use: export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Standings | Darts Association of Malawi",
-  description:
-    "Live league table with points, goal difference, and form indicators.",
+  description: "Live league table with points, goal difference, and form indicators.",
   openGraph: {
     title: "Standings | Darts Association of Malawi",
-    description:
-      "Live league table with points, goal difference, and form indicators.",
+    description: "Live league table with points, goal difference, and form indicators.",
     type: "website",
   },
 };
@@ -25,7 +25,14 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function StandingsPage() {
+export default async function StandingsPage({
+  searchParams,
+}: {
+  searchParams?: { seasonYear?: string; league?: string };
+}) {
+  const seasonYear = Number(searchParams?.seasonYear ?? "2025");
+  const league = (searchParams?.league === "CRDL" ? "CRDL" : "SRDL") as "SRDL" | "CRDL";
+
   return (
     <main className="min-h-screen">
       <a
@@ -34,9 +41,8 @@ export default function StandingsPage() {
       >
         Skip to main content
       </a>
-
       <div id="main-content">
-        <StandingsTableClient />
+        <StandingsTable seasonYear={seasonYear} league={league} />
       </div>
     </main>
   );

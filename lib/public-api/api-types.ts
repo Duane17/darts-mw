@@ -131,6 +131,7 @@ export type StandingRow = {
   goalsAgainst: number;
   goalDiff: number;
   points: number;
+  group: string | null;
   last5: string | null;
   last5Array: string[];
 };

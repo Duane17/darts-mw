@@ -1,11 +1,11 @@
-// app/fixtures/page.tsx
+// src/app/fixtures/page.tsx
 import type { Metadata, Viewport } from "next";
-import FixturesTimelineClient from "@/components/sections/fixtures/FixturesTimelineClient";
+import FixturesTimeline from "@/components/sections/fixtures/FixturesTimeline";
+import type { LeagueFilter } from "@/lib/public-api/api-client";
 
 export const metadata: Metadata = {
   title: "Fixtures & Results | Darts Association of Malawi",
-  description:
-    "Upcoming fixtures and completed results in one timeline, with dates, venues, and quick links.",
+  description: "Upcoming fixtures and completed results in one timeline, with dates, venues, and quick links.",
   openGraph: {
     title: "Fixtures & Results | Darts Association of Malawi",
     description: "Browse upcoming fixtures and recent results together.",
@@ -24,7 +24,45 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function FixturesPage() {
+type ViewMode = "all" | "upcoming" | "results";
+type RangePreset = "this-month" | "this-week" | "all";
+
+export default async function FixturesPage({
+  searchParams,
+}: {
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
+  const now = new Date();
+  const defaultSeasonYear = now.getFullYear();
+  const sp = new URLSearchParams();
+
+  const seasonYear = Number(
+    Array.isArray(searchParams?.seasonYear) ? searchParams?.seasonYear[0] : searchParams?.seasonYear ?? defaultSeasonYear
+  );
+
+  // Accept ALL by default
+  const league = (
+    Array.isArray(searchParams?.league) ? searchParams?.league[0] : searchParams?.league ?? "ALL"
+  ).toUpperCase() as LeagueFilter;
+
+  const view = (
+    Array.isArray(searchParams?.view) ? searchParams?.view[0] : searchParams?.view ?? "all"
+  ).toLowerCase() as ViewMode;
+
+  const range = (
+    Array.isArray(searchParams?.range) ? searchParams?.range[0] : searchParams?.range ?? "this-month"
+  ).toLowerCase() as RangePreset;
+
+  const page = Number(Array.isArray(searchParams?.page) ? searchParams?.page[0] : searchParams?.page ?? 1);
+  const pageSize = Number(Array.isArray(searchParams?.pageSize) ? searchParams?.pageSize[0] : searchParams?.pageSize ?? 20);
+
+  sp.set("seasonYear", String(seasonYear));
+  sp.set("league", league);
+  sp.set("view", view);
+  sp.set("range", range);
+  sp.set("pageSize", String(pageSize));
+  sp.set("page", String(page));
+
   return (
     <main className="min-h-screen">
       <a
@@ -35,7 +73,15 @@ export default function FixturesPage() {
       </a>
 
       <div id="main-content">
-        <FixturesTimelineClient />
+        <FixturesTimeline
+          seasonYear={seasonYear}
+          league={league}
+          view={view}
+          range={range}
+          page={page}
+          pageSize={pageSize}
+          baseSearch={sp}
+        />
       </div>
     </main>
   );

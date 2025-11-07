@@ -1,53 +1,52 @@
 // app/announcements/[id]/page.tsx
 import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
-import { getAnnouncement, listAnnouncementsPage } from "@/lib/public-api/api-client";
 import Link from "next/link";
+
+import { AnnouncementsShell } from "@/components/common/AnnouncementShell";
+import { Markdown } from "@/components/common/Markdown";
 import { formatLocal } from "@/lib/datetime";
 import { PRIORITY_STYLES_LOCAL } from "./priority-styles";
-import { AnnouncementsShell } from "@/components/common/AnnouncementShell"; // fix path
-import { Markdown } from "@/components/common/Markdown";
+import { getAnnouncement } from "@/lib/public-api/api-client";
 
 type PageProps = { params: { id: string } };
 
-export const dynamic = "force-static";
+// Force server rendering at request time.
+// If you prefer ISR, replace this with: export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
+// Fetch one announcement on the server and never throw to the renderer.
+async function safeGetAnnouncement(id: string) {
+  try {
+    const a = await getAnnouncement(id);
+    return a ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// Metadata is also resolved at request time and never crashes the build.
 export async function generateMetadata(
   { params }: PageProps,
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
-  try {
-    const a = await getAnnouncement(params.id);
-    const title = a?.title ? `${a.title} | Announcements` : "Announcement";
-    const desc =
-      a?.body?.slice(0, 160).replace(/\s+/g, " ") || "Official announcement";
-    return {
-      title,
-      description: desc,
-      openGraph: { title, description: desc, type: "article" },
-      twitter: { card: "summary_large_image", title, description: desc },
-    };
-  } catch {
-    return {};
-  }
-}
+  const a = await safeGetAnnouncement(params.id);
+  if (!a) return {};
 
-export async function generateStaticParams() {
-  try {
-    const all = await listAnnouncementsPage({ page: 1, pageSize: 100 });
-    return all.items.map((a) => ({ id: a.id }));
-  } catch {
-    return [];
-  }
+  const title = a.title ? `${a.title} | Announcements` : "Announcement";
+  const desc =
+    a.body?.slice(0, 160).replace(/\s+/g, " ") || "Official announcement";
+
+  return {
+    title,
+    description: desc,
+    openGraph: { title, description: desc, type: "article" },
+    twitter: { card: "summary_large_image", title, description: desc },
+  };
 }
 
 export default async function AnnouncementDetailPage({ params }: PageProps) {
-  let a: Awaited<ReturnType<typeof getAnnouncement>> | null = null;
-  try {
-    a = await getAnnouncement(params.id);
-  } catch {
-    return notFound();
-  }
+  const a = await safeGetAnnouncement(params.id);
   if (!a) return notFound();
 
   const created = a.createdAt ? formatLocal(a.createdAt) : null;

@@ -24,19 +24,31 @@ export type HttpClientOptions = {
 
 const DEFAULT_TIMEOUT = 15000;
 
+// Normalize "https://api.example.com/" to "https://api.example.com"
+function trimTrailingSlash(u: string) {
+  return u.endsWith("/") ? u.slice(0, -1) : u;
+}
+
 /**
  * Minimal fetch wrapper for the public site.
  * No auth token. JSON by default. Graceful error normalization.
+ * Base URL resolution order:
+ * 1) opts.baseUrl
+ * 2) process.env.API_BASE_URL           // server only preferred
+ * 3) process.env.NEXT_PUBLIC_API_BASE_URL
+ * 4) "http://localhost:4000"
  */
 export class HttpClient {
   private baseUrl: string;
   private timeoutMs: number;
 
   constructor(opts: HttpClientOptions = {}) {
-    this.baseUrl =
-      opts.baseUrl ||
+    const fromEnv =
+      process.env.API_BASE_URL ||
       process.env.NEXT_PUBLIC_API_BASE_URL ||
       "http://localhost:4000";
+
+    this.baseUrl = trimTrailingSlash(opts.baseUrl || fromEnv);
     this.timeoutMs = opts.timeoutMs ?? DEFAULT_TIMEOUT;
   }
 
@@ -63,16 +75,12 @@ export class HttpClient {
           const body = await res.json();
           message = body?.message || body?.error || message;
           details = body;
-        } catch {
-          /* ignore */
-        }
+        } catch {}
       } else {
         try {
           const text = await res.text();
           message = text || message;
-        } catch {
-          /* ignore */
-        }
+        } catch {}
       }
       throw new HttpError({ status: res.status, message, details });
     }
@@ -80,6 +88,7 @@ export class HttpClient {
     if (isJson) {
       return (await res.json()) as T;
     }
+    // If not JSON, return undefined typed as T
     return (undefined as unknown) as T;
   }
 
@@ -89,7 +98,10 @@ export class HttpClient {
     body?: unknown,
     init?: RequestInit
   ): Promise<T> {
-    const url = path.startsWith("http") ? path : `${this.baseUrl}${path}`;
+    const url = path.startsWith("http")
+      ? path
+      : `${this.baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+
     const isFormData =
       typeof FormData !== "undefined" && body instanceof FormData;
 

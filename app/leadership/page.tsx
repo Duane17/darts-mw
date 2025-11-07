@@ -1,5 +1,10 @@
-import type { Metadata } from "next";
-import LeadershipGridClient from "@/components/sections/leadership/LeadershipGridClient";
+// app/leadership/page.tsx
+import type { Metadata, Viewport } from "next";
+import LeadershipGrid from "@/components/sections/leadership/LeadershipGrid";
+
+// Pick one cache policy:
+// export const dynamic = "force-dynamic"; // always fresh
+export const revalidate = 60; // time based revalidation
 
 export const metadata: Metadata = {
   title: "Leadership | Darts Association of Malawi",
@@ -12,7 +17,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default function LeadershipPage() {
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
+};
+
+export default async function LeadershipPage({
+  searchParams,
+}: {
+  searchParams?: { offset?: string; limit?: string };
+}) {
+  const offset = Math.max(0, Number(searchParams?.offset ?? "0"));
+  const limit = Math.min(48, Math.max(1, Number(searchParams?.limit ?? "24"))); // safety caps
+
   return (
     <main className="min-h-screen">
       <a
@@ -23,14 +46,15 @@ export default function LeadershipPage() {
       </a>
 
       <div id="main-content">
-        <LeadershipGridClient
+        <LeadershipGrid
           heading={{
             overline: "Leadership",
             title: "Meet the team",
             subtitle:
               "Vision, stewardship, and service for the sport across Malawi",
           }}
-          pageSize={24}
+          offset={offset}
+          limit={limit}
         />
       </div>
     </main>
