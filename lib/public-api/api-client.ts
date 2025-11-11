@@ -7,6 +7,8 @@ import type {
   StandingRow,
   Health,
   Result,
+  HomeContent,
+  AboutContent
 } from "./api-types";
 
 /** Shared paging contracts */
@@ -84,16 +86,16 @@ export async function listFixturesPageCompat(params: {
   page?: number;
   pageSize?: number;
   type?: "SRDL_LEAGUE" | "SMK_TRADING_CRDL";
-  includeResults?: boolean; // NEW: fetch result relation so scores always render
+  includeResults?: boolean;
 }): Promise<Paginated<Fixture>> {
   const isAll = params.league === "ALL";
 
-  // 1) Preferred new contract
+  
   const q1 = qsFrom({
     page: params.page ?? 1,
     pageSize: params.pageSize ?? 20,
     seasonYear: params.seasonYear,
-    league: isAll ? undefined : params.league, // omit when ALL
+    league: isAll ? undefined : params.league,
     from: params.from,
     to: params.to,
     type: params.type,
@@ -153,7 +155,6 @@ export async function listFixturesPageCompat(params: {
 }
 
 
-/** Results and leaders and standings - unchanged API from your current site */
 
 export type ResultSort = "date_asc" | "date_desc" | "created_asc" | "created_desc";
 export type ListResultsParams = PageParams & {
@@ -211,7 +212,6 @@ export async function getStandingsCompat(params: {
   seasonYear: number | string;
   league: LeagueCode;
 }): Promise<StandingRow[]> {
-  // try new, then legacy "YYYY LEAGUE", then just "YYYY"
   const tryOnce = async (qs: string) => {
     const res = await http.get(`/standings?${qs}`);
     return asArray<StandingRow>(res);
@@ -240,4 +240,91 @@ export async function getStandingsCompat(params: {
 
   const q3 = new URLSearchParams({ season: String(params.seasonYear) });
   return tryOnce(q3.toString());
+}
+
+export type ListLeadersParams = {
+  q?: string;
+  activeOnly?: boolean;
+  limit?: number;
+  offset?: number;
+  sort?:
+    | "name_asc"
+    | "name_desc"
+    | "title_asc"
+    | "title_desc"
+    | "newest"
+    | "oldest";
+};
+
+function toQS(params?: Record<string, string | number | boolean | undefined>) {
+  const q = new URLSearchParams();
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null) q.set(k, String(v));
+    }
+  }
+  const s = q.toString();
+  return s ? `?${s}` : "";
+}
+
+export async function listLeadersPage(
+  params: ListLeadersParams = {}
+): Promise<{
+  items: Leader[];
+  limit: number;
+  offset: number;
+  total: number;
+  hasMore: boolean;
+}> {
+  const qs = toQS({
+    q: params.q,
+    activeOnly: params.activeOnly,
+    limit: params.limit ?? 20,
+    offset: params.offset ?? 0,
+    sort: params.sort ?? "name_asc",
+  });
+  const res = await http.get(`/leaders${qs}`);
+  const any = res as any;
+  const items = asArray<Leader>(res);
+  const limit = Number(any?.limit ?? items.length ?? 20);
+  const offset = Number(any?.offset ?? 0);
+  const total = Number(any?.total ?? items.length ?? 0);
+  const hasMore = Boolean(any?.hasMore ?? offset + items.length < total);
+  return { items, limit, offset, total, hasMore };
+}
+
+export async function listLeaders(
+  params: Omit<ListLeadersParams, "limit" | "offset"> = {}
+): Promise<Leader[]> {
+  const page1 = await listLeadersPage({ ...params, limit: 20, offset: 0 });
+  return page1.items;
+}
+
+export async function getLeaderBySlug(slug: string): Promise<Leader> {
+  return http.get(`/leaders/${encodeURIComponent(slug)}`);
+}
+
+
+// tiny helper so both functions stay identical in behavior
+function invalidResponse(resource: string): never {
+  throw new HttpError({ status: 502, message: `Invalid server response for ${resource}` });
+}
+
+/** Runtime guards */
+function isHomeContent(x: any): x is HomeContent {
+  return !!x && typeof x === "object"
+    && x.hero && typeof x.hero === "object"
+    && typeof x.hero.title === "string";
+}
+
+function isAboutContent(x: any): x is AboutContent {
+  return !!x && typeof x === "object"
+    && typeof x.title === "string";
+}
+
+export async function getHomeContent(): Promise<HomeContent> {
+  return http.get("/content/home");
+}
+export async function getAboutContent(): Promise<AboutContent> {
+  return http.get("/content/about");
 }

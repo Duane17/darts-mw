@@ -158,3 +158,37 @@ export type Result = {
 };
 
 export type ResultWithFixture = Result;
+
+export type ProgrammeItem = {
+  id: string;
+  title: string;
+  description: string;
+  cta: string;
+  bgImage: string;
+};
+
+export type HomeContent = {
+  heroBg: string;
+  ctaBg: string;
+  programmes: ProgrammeItem[];
+};
+
+export type AboutContent = {
+  heroBg: string;
+  missionVision: {
+    sectionBg: string;
+    missionBg: string;
+    visionBg: string;
+    motto: string;
+    mission: string;
+    vision: string;
+  };
+  coreValues: {
+    sectionBg: string;
+    items: Array<{
+      title: string;
+      desc: string;
+      bgImage: string;
+    }>;
+  };
+};

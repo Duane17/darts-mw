@@ -1,25 +1,29 @@
-"use client"
+// src/components/sections/home/Programmes.tsx
+"use client";
 
-import { motion } from "framer-motion"
-import { ImageCard } from "@/components/common/ImageCard"
-import { SectionShell } from "@/components/common/SectionShell"
-import { SectionHeading } from "@/components/common/SectionHeading"
+import { motion } from "framer-motion";
+import { ImageCard } from "@/components/common/ImageCard";
+import { SectionShell } from "@/components/common/SectionShell";
+import { SectionHeading } from "@/components/common/SectionHeading";
+import { mediaUrl } from "@/lib/media";
+
+interface ProgrammeItem {
+  id: string;
+  title: string;
+  description: string;
+  cta: string;
+  bgImage: string;
+}
 
 interface ProgrammesProps {
   data: {
     heading: {
-      overline: string
-      title: string
-      subtitle: string
-    }
-    programmes: Array<{
-      id: string
-      title: string
-      description: string
-      cta: string
-      bgImage: string
-    }>
-  }
+      overline: string;
+      title: string;
+      subtitle: string;
+    };
+    programmes: ProgrammeItem[];
+  };
 }
 
 export function Programmes({ data }: ProgrammesProps) {
@@ -44,21 +48,21 @@ export function Programmes({ data }: ProgrammesProps) {
               className="group"
             >
               <ImageCard
-                bgImage={programme.bgImage}
+                bgImage={mediaUrl(programme.bgImage)}
                 title={programme.title}
                 subtitle={programme.description}
                 overlay="dark"
                 height="xl"
                 className="dam-gold-underline hover:border-dam-gold hover:border-2"
                 expandable
-                expandBehavior="click"     
-                clampLines={3} 
-                showGlass={false}             
+                expandBehavior="click"
+                clampLines={3}
+                showGlass={false}
               />
             </motion.div>
           ))}
         </div>
       </div>
     </SectionShell>
-  )
+  );
 }

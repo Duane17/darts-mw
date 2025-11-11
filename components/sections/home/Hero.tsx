@@ -1,32 +1,49 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { SectionShell } from "@/components/common/SectionShell"
-import Link from "next/link"
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { SectionShell } from "@/components/common/SectionShell";
+import Link from "next/link";
+import { mediaUrl } from "@/lib/media";
+
+interface HeroStats {
+  label: string;
+  value: string;
+}
 
 interface HeroProps {
   data: {
-    overline: string
-    title: string
-    subtitle: string
-    primaryCta: string
-    secondaryCta: string
-    stats: Array<{
-      label: string
-      value: string
-    }>
-  }
+    overline: string;
+    title: string;
+    subtitle: string;
+    primaryCta: string;
+    secondaryCta: string;
+    stats: HeroStats[];
+    /** Can be either a static file or a backend path like /uploads/home/hero-1234567890.webp */
+    bgImage?: string;
+  };
+}
+
+/**
+ * Decides the best background image to use and normalizes it via mediaUrl.
+ * mediaUrl should handle both static assets and /uploads paths.
+ */
+function resolveBgImage(raw?: string) {
+  const fallback = "/images/hero.jpg";
+  const pick = raw && raw.trim().length > 0 ? raw : fallback;
+  return mediaUrl(pick);
 }
 
 export function Hero({ data }: HeroProps) {
+  const bg = resolveBgImage(data.bgImage);
+
   return (
     <SectionShell
-      bgImage="/hero.jpg"
+      bgImage={bg}
       overlay="dark"
       diagonals
-      className="min-h-screen flex items-center bg-black/80" // slightly softer than bg-gray-900
+      className="min-h-screen flex items-center bg-black/80"
     >
       <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
         <motion.div
@@ -45,7 +62,9 @@ export function Hero({ data }: HeroProps) {
             <h1 className="dam-heading dam-heading-xl font-heading text-white text-balance drop-shadow-lg">
               {data.title}
             </h1>
-            <p className="text-xl leading-relaxed text-white max-w-2xl drop-shadow-md">{data.subtitle}</p>
+            <p className="text-xl leading-relaxed text-white max-w-2xl drop-shadow-md">
+              {data.subtitle}
+            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -65,29 +84,7 @@ export function Hero({ data }: HeroProps) {
             </Link>
           </div>
         </motion.div>
-
-        {/* <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="lg:justify-self-end relative z-30"
-        >
-          <div className="grid grid-cols-2 gap-4 max-w-sm">
-            {data.stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                className="bg-black/70 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20"
-              >
-                <div className="dam-heading dam-heading-md font-heading text-dam-gold">{stat.value}</div>
-                <div className="text-sm text-white mt-1">{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div> */}
       </div>
     </SectionShell>
-  )
+  );
 }
