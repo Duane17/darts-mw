@@ -3,6 +3,11 @@
 # dependencies
 /node_modules
 
+
+# deploys
+/deploy
+dartsmw-standalone.zip
+
 # next.js
 /.next/
 /out/
@@ -26,3 +31,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+
+
+ssh
+
+.htaccess
+.ftpquota
+.litespeed_flag

@@ -11,6 +11,9 @@ import {
 } from "@/data/about";
 import { getAboutContent } from "@/lib/public-api/api-client";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "About Us | Darts Association of Malawi",
   description:

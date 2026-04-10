@@ -310,21 +310,16 @@ function invalidResponse(resource: string): never {
   throw new HttpError({ status: 502, message: `Invalid server response for ${resource}` });
 }
 
-/** Runtime guards */
-function isHomeContent(x: any): x is HomeContent {
-  return !!x && typeof x === "object"
-    && x.hero && typeof x.hero === "object"
-    && typeof x.hero.title === "string";
-}
-
-function isAboutContent(x: any): x is AboutContent {
-  return !!x && typeof x === "object"
-    && typeof x.title === "string";
-}
 
 export async function getHomeContent(): Promise<HomeContent> {
-  return http.get("/content/home");
+  return http.get("/content/home", {
+    cache: "no-store",
+    next: {revalidate: 0}
+  });
 }
 export async function getAboutContent(): Promise<AboutContent> {
-  return http.get("/content/about");
+  return http.get("/content/about", {
+    cache: "no-store",
+    next: {revalidate: 0}
+  });
 }

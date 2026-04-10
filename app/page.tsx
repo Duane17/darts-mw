@@ -7,6 +7,9 @@ import { FacebookSection } from "@/components/sections/home/FacebookSection";
 import { heroData, programmesData, ctaBandData } from "@/data/home";
 import { getHomeContent } from "@/lib/public-api/api-client";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Build merged view models from a single API call with safe fallbacks
 async function loadHomeViewModels() {
   try {
