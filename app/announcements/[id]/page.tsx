@@ -4,18 +4,23 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { AnnouncementsShell } from "@/components/common/AnnouncementShell";
-import { Markdown } from "@/components/common/Markdown";
 import { formatLocal } from "@/lib/datetime";
 import { PRIORITY_STYLES_LOCAL } from "./priority-styles";
 import { getAnnouncement } from "@/lib/public-api/api-client";
 
-type PageProps = { params: { id: string } };
+type PageProps = { params: Promise<{ id: string }> | { id: string } };
 
-// Force server rendering at request time.
-// If you prefer ISR, replace this with: export const revalidate = 60;
 export const dynamic = "force-dynamic";
 
-// Fetch one announcement on the server and never throw to the renderer.
+// Helper to strip HTML for metadata/SEO
+function stripHtml(html: string) {
+  return html
+    .replace(/<[^>]*>?/gm, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 async function safeGetAnnouncement(id: string) {
   try {
     const a = await getAnnouncement(id);
@@ -25,17 +30,19 @@ async function safeGetAnnouncement(id: string) {
   }
 }
 
-// Metadata is also resolved at request time and never crashes the build.
 export async function generateMetadata(
-  { params }: PageProps,
+  { params }: { params: any },
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const a = await safeGetAnnouncement(params.id);
+  const { id } = await params;
+  const a = await safeGetAnnouncement(id);
   if (!a) return {};
 
   const title = a.title ? `${a.title} | Announcements` : "Announcement";
-  const desc =
-    a.body?.slice(0, 160).replace(/\s+/g, " ") || "Official announcement";
+  // Strip tags so the description is clean text
+  const desc = a.body 
+    ? stripHtml(a.body).slice(0, 160) 
+    : "Official announcement";
 
   return {
     title,
@@ -45,8 +52,9 @@ export async function generateMetadata(
   };
 }
 
-export default async function AnnouncementDetailPage({ params }: PageProps) {
-  const a = await safeGetAnnouncement(params.id);
+export default async function AnnouncementDetailPage({ params }: { params: any }) {
+  const { id } = await params;
+  const a = await safeGetAnnouncement(id);
   if (!a) return notFound();
 
   const created = a.createdAt ? formatLocal(a.createdAt) : null;
@@ -67,12 +75,6 @@ export default async function AnnouncementDetailPage({ params }: PageProps) {
 
           <header className="space-y-3">
             <div className="flex items-center gap-2">
-              {badge ? (
-                <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${badge}`}>
-                  {a.priority === "gold" ? "Priority" : a.priority === "success" ? "Success" : "Alert"}
-                </span>
-              ) : null}
-
               {created ? (
                 <time
                   className="text-xs text-white/70"
@@ -84,15 +86,18 @@ export default async function AnnouncementDetailPage({ params }: PageProps) {
               ) : null}
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-semibold text-white">
+            <h1 className="text-3xl sm:text-4xl font-semibold text-white">
               {a.title}
             </h1>
           </header>
 
           {a.body ? (
-            <Markdown className="text-white">
-              {a.body}
-            </Markdown>
+            <div 
+              className="prose prose-invert prose-emerald max-w-none text-white/90 
+                prose-headings:text-white prose-strong:text-white prose-img:rounded-xl 
+                prose-a:text-dam-gold prose-a:underline"
+              dangerouslySetInnerHTML={{ __html: a.body }}
+            />
           ) : (
             <p className="text-white/85">Details will be posted soon.</p>
           )}
