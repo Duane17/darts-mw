@@ -7,6 +7,7 @@
 # deploys
 /deploy
 dartsmw-standalone.zip
+deploy_package.zip
 
 # next.js
 /.next/
@@ -38,3 +39,4 @@ ssh
 .htaccess
 .ftpquota
 .litespeed_flag
+
