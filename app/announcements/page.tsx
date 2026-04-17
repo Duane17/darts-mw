@@ -1,11 +1,7 @@
-// app/announcements/page.tsx
 import type { Metadata, Viewport } from "next";
 import AnnouncementsList from "@/components/sections/announcements/AnnouncementsList";
+import { getAnnouncementsContent } from "@/lib/public-api/api-client";
 
-// Server side caching policy. Pick one:
-// Always fresh:
-// export const dynamic = "force-dynamic";
-// or time based ISR:
 export const revalidate = 60;
 
 export const metadata: Metadata = {
@@ -37,6 +33,16 @@ export default async function AnnouncementsPage({
   const page = Number(searchParams?.page ?? "1");
   const pageSize = 9;
 
+  // Fetch the background image from the API
+  let bgImage: string | null = null;
+  try {
+    const content = await getAnnouncementsContent();
+    bgImage = content?.backgroundImage ?? null;
+  } catch (error) {
+    console.error("Failed to fetch announcements background:", error);
+    // fallback to default
+  }
+
   return (
     <main className="min-h-screen">
       <a
@@ -46,8 +52,7 @@ export default async function AnnouncementsPage({
         Skip to main content
       </a>
       <div id="main-content">
-        {/* Server rendered list */}
-        <AnnouncementsList page={page} pageSize={pageSize} />
+        <AnnouncementsList page={page} pageSize={pageSize} bgImage={bgImage} />
       </div>
     </main>
   );

@@ -192,3 +192,7 @@ export type AboutContent = {
     }>;
   };
 };
+
+export type AnnouncementsContent = {
+  backgroundImage?: string | null;
+};

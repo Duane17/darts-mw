@@ -14,7 +14,7 @@ const navigationLinks = [
   { href: "/leadership", label: "Leadership" },
   { href: "/fixtures", label: "Fixtures" },
   { href: "/standings", label: "Standings" },
-  { href: "/announcements", label: "Blog" },
+  { href: "/announcements", label: "Announcements" },
   { href: "/contact", label: "Contact" },
 ]
 

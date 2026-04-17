@@ -8,7 +8,8 @@ import type {
   Health,
   Result,
   HomeContent,
-  AboutContent
+  AboutContent,
+  AnnouncementsContent
 } from "./api-types";
 
 /** Shared paging contracts */
@@ -321,5 +322,12 @@ export async function getAboutContent(): Promise<AboutContent> {
   return http.get("/content/about", {
     cache: "no-store",
     next: {revalidate: 0}
+  });
+}
+
+export async function getAnnouncementsContent(): Promise<AnnouncementsContent> {
+  return http.get("/content/announcements", {
+    cache: "no-store",
+    next: { revalidate: 0 }
   });
 }

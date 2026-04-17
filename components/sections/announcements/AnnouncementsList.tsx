@@ -5,6 +5,7 @@ import { listAnnouncementsPage } from "@/lib/public-api/api-client";
 import type { Announcement, Priority } from "@/lib/public-api/api-types";
 import { cn } from "@/lib/utils";
 import { formatLocal } from "@/lib/datetime";
+import { mediaUrl } from "@/lib/public-api/media";
 
 // Helper to strip HTML tags and entities for the preview
 function stripHtml(html: string) {
@@ -28,7 +29,6 @@ const PRIORITY_STYLES: Record<Priority, string> = {
 
 function Card({ a }: { a: Announcement }) {
   const created = a.createdAt ? formatLocal(a.createdAt) : null;
-  // Create the plaintext preview
   const plainTextPreview = a.body ? stripHtml(a.body) : "";
 
   return (
@@ -78,17 +78,23 @@ function Card({ a }: { a: Announcement }) {
 export default async function AnnouncementsList({
   page,
   pageSize,
+  bgImage,
 }: {
   page: number;
   pageSize: number;
+  bgImage?: string | null;
 }) {
   const data = await listAnnouncementsPage({ page, pageSize });
 
   const items = data?.items ?? [];
   const pages = data?.pages ?? 1;
 
+  // Use provided bgImage or fallback to default, then resolve full URL
+  const backgroundUrlRaw = bgImage && bgImage.trim() ? bgImage : "/images/cta/cta-bg.jpg";
+  const backgroundUrl = mediaUrl(backgroundUrlRaw);
+
   return (
-    <SectionShell bgImage="/images/cta/cta-bg.jpg" overlay="dark" className="py-20">
+    <SectionShell bgImage={backgroundUrl} overlay="dark" className="py-20">
       <div className="max-w-6xl mx-auto px-6 space-y-8">
         <SectionHeading
           overline="UPDATES"
