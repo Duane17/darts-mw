@@ -9,9 +9,7 @@ import { mediaUrl } from "@/lib/public-api/media";
 
 // Helper to strip HTML tags and entities for the preview
 function stripHtml(html: string) {
-  // 1. Remove tags
   const noTags = html.replace(/<[^>]*>?/gm, " ");
-  // 2. Decode common entities and trim
   return noTags
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
@@ -19,6 +17,12 @@ function stripHtml(html: string) {
     .replace(/&gt;/g, ">")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+// Extract the first image src from HTML body
+function extractFirstImageSrc(html: string): string | null {
+  const imgMatch = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return imgMatch ? imgMatch[1] : null;
 }
 
 const PRIORITY_STYLES: Record<Priority, string> = {
@@ -30,9 +34,21 @@ const PRIORITY_STYLES: Record<Priority, string> = {
 function Card({ a }: { a: Announcement }) {
   const created = a.createdAt ? formatLocal(a.createdAt) : null;
   const plainTextPreview = a.body ? stripHtml(a.body) : "";
+  const firstImageSrc = a.body ? extractFirstImageSrc(a.body) : null;
 
   return (
     <article className="group rounded-2xl border border-white/10 bg-black/30 p-5 shadow-sm hover:bg-black/40 transition-colors h-full flex flex-col">
+      {/* Optional thumbnail */}
+      {firstImageSrc && (
+        <div className="mb-4 overflow-hidden rounded-lg">
+          <img
+            src={mediaUrl(firstImageSrc)}
+            alt=""
+            className="h-40 w-full object-cover transition-transform group-hover:scale-105"
+          />
+        </div>
+      )}
+
       <header className="space-y-2">
         <div className="flex items-center gap-2">
           {created ? (
@@ -89,7 +105,6 @@ export default async function AnnouncementsList({
   const items = data?.items ?? [];
   const pages = data?.pages ?? 1;
 
-  // Use provided bgImage or fallback to default, then resolve full URL
   const backgroundUrlRaw = bgImage && bgImage.trim() ? bgImage : "/images/cta/cta-bg.jpg";
   const backgroundUrl = mediaUrl(backgroundUrlRaw);
 
