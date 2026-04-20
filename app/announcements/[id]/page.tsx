@@ -2,7 +2,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, ChevronRight, Calendar } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 
 import { AnnouncementsShell } from "@/components/common/AnnouncementShell";
 import { formatLocal } from "@/lib/datetime";
@@ -30,16 +30,24 @@ async function safeGetAnnouncement(id: string) {
   }
 }
 
-async function getNextAnnouncement(currentId: string) {
+/**
+ * Fetches adjacent announcements to enable "Previous" and "Next" navigation
+ */
+async function getAdjacentAnnouncements(currentId: string) {
   try {
     const { items } = await listAnnouncementsPage({ pageSize: 50 });
     const currentIndex = items.findIndex((a) => a.id === currentId);
-    if (currentIndex !== -1 && currentIndex < items.length - 1) {
-      return items[currentIndex + 1];
-    }
-    return null;
+
+    if (currentIndex === -1) return { prev: null, next: null };
+
+    return {
+      // Prev is the newer one (previous in the list)
+      prev: currentIndex > 0 ? items[currentIndex - 1] : null,
+      // Next is the older one (next in the list)
+      next: currentIndex < items.length - 1 ? items[currentIndex + 1] : null,
+    };
   } catch {
-    return null;
+    return { prev: null, next: null };
   }
 }
 
@@ -67,7 +75,7 @@ export default async function AnnouncementDetailPage({ params }: { params: any }
   const a = await safeGetAnnouncement(id);
   if (!a) return notFound();
 
-  const nextAnnouncement = await getNextAnnouncement(id);
+  const { prev, next } = await getAdjacentAnnouncements(id);
   const created = a.createdAt ? formatLocal(a.createdAt) : null;
   const badge = a.priority
     ? PRIORITY_STYLES_LOCAL[a.priority] ?? "bg-white/10 text-white/85 border-white/20"
@@ -128,6 +136,11 @@ export default async function AnnouncementDetailPage({ params }: { params: any }
           </Link>
 
           <div className="space-y-4">
+            {badge && (
+              <span className={`${badge} px-2 py-0.5 rounded-sm text-[9px] uppercase tracking-[0.2em] font-black border border-white/10`}>
+                {a.priority}
+              </span>
+            )}
             <h1 className="text-white text-3xl md:text-5xl font-bold leading-tight tracking-tight max-w-4xl">
               {a.title}
             </h1>
@@ -135,14 +148,13 @@ export default async function AnnouncementDetailPage({ params }: { params: any }
         </div>
       </AnnouncementsShell>
 
-      {/* BODY SECTION: High-Contrast Article Body */}
+      {/* BODY SECTION */}
       <section className="relative -mt-10 pb-20 px-4 md:px-6">
         <article className="max-w-3xl mx-auto bg-white shadow-xl ring-1 ring-black/5 overflow-hidden">
-          {/* Top Branding Bar */}
           <div className="h-1.5 bg-dam-gold w-full" />
           
           <div className="p-8 md:p-16">
-            {/* Metadata / Author Line */}
+            {/* Metadata Line */}
             <div className="flex flex-wrap items-center gap-y-4 gap-x-6 mb-12 pb-8 border-b border-gray-100">
               <div className="flex items-center gap-3">
                 <div className="relative w-10 h-10 border border-gray-100 rounded-full p-1 bg-gray-50">
@@ -169,7 +181,7 @@ export default async function AnnouncementDetailPage({ params }: { params: any }
               )}
             </div>
 
-            {/* Main Content Area */}
+            {/* Main Content */}
             {a.body ? (
               <div
                 className="announcement-content dam-text-pretty"
@@ -181,32 +193,42 @@ export default async function AnnouncementDetailPage({ params }: { params: any }
               </p>
             )}
 
-            {/* Signature / End of Piece */}
             <div className="mt-20 flex items-center gap-4">
                <div className="h-px bg-gray-200 flex-grow" />
                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">End</span>
                <div className="h-px bg-gray-200 flex-grow" />
             </div>
 
-            {/* Footer Navigation */}
-            {nextAnnouncement && (
-              <div className="mt-12 group">
-                <Link
-                  href={`/announcements/${nextAnnouncement.id}`}
-                  className="block p-6 border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-dam-gold transition-all duration-300"
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="space-y-1">
-                      <span className="text-[10px] uppercase tracking-widest text-dam-red font-bold">
-                        Up Next
-                      </span>
-                      <h3 className="text-lg font-bold text-black line-clamp-1">
-                        {nextAnnouncement.title}
-                      </h3>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-dam-gold transition-colors group-hover:translate-x-1" />
-                  </div>
-                </Link>
+            {/* Footer Navigation: Previous & Next */}
+            {(prev || next) && (
+              <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {prev ? (
+                  <Link
+                    href={`/announcements/${prev.id}`}
+                    className="group flex flex-col p-6 border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-dam-gold transition-all duration-300"
+                  >
+                    <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2 flex items-center gap-1">
+                      <ChevronLeft className="w-3 h-3" /> Previous
+                    </span>
+                    <h3 className="text-sm font-bold text-black line-clamp-2 group-hover:text-dam-red transition-colors">
+                      {prev.title}
+                    </h3>
+                  </Link>
+                ) : <div className="hidden sm:block" />}
+
+                {next ? (
+                  <Link
+                    href={`/announcements/${next.id}`}
+                    className="group flex flex-col p-6 border border-gray-100 bg-gray-50/50 hover:bg-white hover:border-dam-gold transition-all duration-300 text-right items-end"
+                  >
+                    <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-2 flex items-center gap-1">
+                      Next <ChevronRight className="w-3 h-3" />
+                    </span>
+                    <h3 className="text-sm font-bold text-black line-clamp-2 group-hover:text-dam-red transition-colors">
+                      {next.title}
+                    </h3>
+                  </Link>
+                ) : <div className="hidden sm:block" />}
               </div>
             )}
           </div>
