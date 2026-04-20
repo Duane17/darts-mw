@@ -1,79 +1,101 @@
 // src/app/page.tsx
 import { Hero } from "@/components/sections/home/Hero";
-import { Programmes } from "@/components/sections/home/Programmes";
+import { HomeAnnouncements } from "@/components/sections/home/HomeAnnouncements";
+import { MissionVision } from "@/components/sections/about/MissionVision";
+import { CoreValues } from "@/components/sections/about/CoreValues";
+import { StrategicGoals } from "@/components/sections/about/StrategicGoals";
 import { CtaBand } from "@/components/sections/home/CtaBand";
-import { FacebookSection } from "@/components/sections/home/FacebookSection";
-import { HomeAnnouncements } from "@/components/sections/home/HomeAnnouncements"; // New Component
-import { heroData, programmesData, ctaBandData } from "@/data/home";
-import { getHomeContent, listAnnouncementsPage } from "@/lib/public-api/api-client";
+
+import { heroData, ctaBandData } from "@/data/home";
+import { missionVision as mvFallback, values as valuesFallback } from "@/data/about";
+import { getHomeContent, listAnnouncementsPage, getAboutContent } from "@/lib/public-api/api-client";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 async function loadHomeViewModels() {
-  // Fetch Home Content and Announcements in parallel
-  const [api, announcementsData] = await Promise.allSettled([
+  const [api, announcementsData, aboutApi] = await Promise.allSettled([
     getHomeContent(),
-    listAnnouncementsPage({ pageSize: 6 })
+    listAnnouncementsPage({ pageSize: 6 }),
+    getAboutContent() 
   ]);
 
   const apiContent = api.status === 'fulfilled' ? api.value : null;
   const latestAnnouncements = announcementsData.status === 'fulfilled' ? announcementsData.value.items : [];
+  const aboutContent = aboutApi.status === 'fulfilled' ? aboutApi.value : null;
 
   // Hero Hydration
   const mergedHero = {
     ...heroData,
-    bgImage: apiContent?.heroBg && apiContent.heroBg.trim().length > 0 ? apiContent.heroBg : heroData.bgImage,
+    bgImage: apiContent?.heroBg || heroData.bgImage,
   };
 
-  // Programmes Hydration
-  const fallback = programmesData;
-  const apiItems = Array.isArray(apiContent?.programmes) ? apiContent!.programmes : [];
-  const fbById = new Map(fallback.programmes.map(p => [p.id, p]));
-  
-  const mergedProgrammes = apiItems.length
-    ? {
-        heading: fallback.heading,
-        programmes: apiItems.map((p, idx) => {
-          const fb = fbById.get(p.id) ?? fallback.programmes[idx] ?? fallback.programmes[0];
-          return {
-            id: p.id ?? fb.id,
-            title: p.title || fb.title,
-            description: p.description || fb.description,
-            cta: (p as any).cta || fb.cta || "Learn more",
-            bgImage: p.bgImage && p.bgImage.trim().length > 0 ? p.bgImage : fb.bgImage,
-          };
-        }),
-      }
-    : fallback;
-
-  // CTA Hydration
+  // CTA Band Hydration (Fixing the missing fetch)
   const mergedCta = {
     ...ctaBandData,
-    bgImage: apiContent?.ctaBg && apiContent.ctaBg.trim().length > 0 ? apiContent.ctaBg : ctaBandData.bgImage,
+    bgImage: apiContent?.ctaBg && apiContent.ctaBg.trim().length > 0 
+      ? apiContent.ctaBg 
+      : ctaBandData.bgImage,
   };
 
-  return { mergedHero, mergedProgrammes, mergedCta, latestAnnouncements };
+  // Mission/Vision Hydration
+  const mvApi = aboutContent?.missionVision;
+  const mergedMV = {
+    images: {
+      mission: mvApi?.missionBg || mvFallback.images.mission,
+      vision: mvApi?.visionBg || mvFallback.images.vision,
+    },
+    mission: mvApi?.mission || mvFallback.mission,
+    vision: mvApi?.vision || mvFallback.vision,
+    motto: mvApi?.motto || mvFallback.motto,
+  };
+
+  // Core Values Hydration
+  const valueItems = aboutContent?.coreValues?.items ?? [];
+  const mergedValues = {
+    items: valueItems.length > 0 
+      ? valueItems.map((it, idx) => ({
+          title: it.title || valuesFallback[idx]?.title || "Value",
+          desc: it.desc || valuesFallback[idx]?.desc || "",
+          bgImage: it.bgImage || valuesFallback[idx]?.bgImage || "",
+        }))
+      : valuesFallback
+  };
+
+  return { 
+    mergedHero, 
+    mergedCta, // Added back to the return object
+    latestAnnouncements, 
+    mergedMV, 
+    mergedValues 
+  };
 }
 
 export default async function HomePage() {
-  const { mergedHero, mergedProgrammes, mergedCta, latestAnnouncements } = await loadHomeViewModels();
+  const { 
+    mergedHero, 
+    mergedCta, 
+    latestAnnouncements, 
+    mergedMV, 
+    mergedValues 
+  } = await loadHomeViewModels();
 
   return (
     <main className="min-h-screen">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-white text-black px-4 py-2 rounded-md font-medium"
-      >
-        Skip to main content
-      </a>
-
       <div id="main-content">
         <Hero data={mergedHero} />
-        <Programmes data={mergedProgrammes} />
+        
+        {/* Strategic Identity Section */}
+        <MissionVision data={mergedMV} />
+        <CoreValues data={mergedValues} />
+        <StrategicGoals />
+        
+        {/* News & Updates */}
         {latestAnnouncements.length > 0 && (
           <HomeAnnouncements announcements={latestAnnouncements} />
         )}
+        
+        {/* Now using hydrated data with API photo */}
         <CtaBand data={mergedCta} />
       </div>
     </main>
