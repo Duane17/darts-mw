@@ -136,11 +136,6 @@ export default async function AnnouncementDetailPage({ params }: { params: any }
           </Link>
 
           <div className="space-y-4">
-            {badge && (
-              <span className={`${badge} px-2 py-0.5 rounded-sm text-[9px] uppercase tracking-[0.2em] font-black border border-white/10`}>
-                {a.priority}
-              </span>
-            )}
             <h1 className="text-white text-3xl md:text-5xl font-bold leading-tight tracking-tight max-w-4xl">
               {a.title}
             </h1>
