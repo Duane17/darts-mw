@@ -11,8 +11,8 @@ xcopy /y /e /i /q .next\static .next\standalone\.next\static
 Write-Host "Zipping deployment package..." -ForegroundColor Cyan
 if (Test-Path "../../deploy_package.zip") { Remove-Item "../../deploy_package.zip" }
 
-cd .next\standalone
+Set-Location .next\standalone
 Compress-Archive -Path * -DestinationPath ..\..\deploy_package.zip -Force
 
-cd ..\..
+Set-Location ..\..
 Write-Host "Done! Your package is ready at: deploy_package.zip" -ForegroundColor Green
