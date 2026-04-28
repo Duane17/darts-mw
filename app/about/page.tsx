@@ -16,7 +16,7 @@ async function loadAboutViewModels() {
 
   const heroVm = {
     overline: aboutHeroFallback.overline,
-    title: "Organization Profile",
+    title: "Darts Association of Malawi",
     sub: apiContent?.missionVision?.motto || aboutHeroFallback.sub,
     bgImage: apiContent?.heroBg || aboutHeroFallback.bgImage,
   };
@@ -28,9 +28,9 @@ async function loadAboutViewModels() {
   
   const mergedProfile = {
     heading: {
-      overline: "Our Structure",
-      title: "Organization Profile",
-      subtitle: "The administrative and operational framework of the Darts Association of Malawi."
+      overline: "Organization Profile",
+      title: "Darts Association of Malawi",
+      subtitle: "National governing body for the promotion, regulation, and development of darts across Malawi"
     },
     programmes: apiItems.length > 0 
       ? apiItems.map((p, idx) => ({
