@@ -168,6 +168,7 @@ export type ProgrammeItem = {
 };
 
 export type HomeContent = {
+  heroBgs: string[];
   heroBg: string;
   ctaBg: string;
   programmes: ProgrammeItem[];

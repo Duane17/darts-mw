@@ -7,6 +7,7 @@ export const heroData = {
   primaryCta: "About DAM",
   secondaryCta: "Get Involved",
   bgImage: "/images/hero.jpg",
+  heroBgs: ["/images/hero.jpg"],
   stats: [
     { label: "Global Recognition", value: "Vision" },
     { label: "Excellence", value: "Commitment" },

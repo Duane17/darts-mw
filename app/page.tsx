@@ -13,6 +13,10 @@ import { getHomeContent, listAnnouncementsPage, getAboutContent } from "@/lib/pu
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+/**
+ * Merges backend API data with local static fallbacks to ensure 
+ * the page is always renderable even if the DB is empty.
+ */
 async function loadHomeViewModels() {
   const [api, announcementsData, aboutApi] = await Promise.allSettled([
     getHomeContent(),
@@ -24,21 +28,21 @@ async function loadHomeViewModels() {
   const latestAnnouncements = announcementsData.status === 'fulfilled' ? announcementsData.value.items : [];
   const aboutContent = aboutApi.status === 'fulfilled' ? aboutApi.value : null;
 
-  // Hero Hydration
+  // 1. Hero Hydration: Supports the new multi-image slideshow array
   const mergedHero = {
     ...heroData,
-    bgImage: apiContent?.heroBg || heroData.bgImage,
+    heroBgs: apiContent?.heroBgs && apiContent.heroBgs.length > 0
+      ? apiContent.heroBgs
+      : [heroData.bgImage], // Fallback wrapped in array for component compatibility
   };
 
-  // CTA Band Hydration (Fixing the missing fetch)
+  // 2. CTA Band Hydration
   const mergedCta = {
     ...ctaBandData,
-    bgImage: apiContent?.ctaBg && apiContent.ctaBg.trim().length > 0 
-      ? apiContent.ctaBg 
-      : ctaBandData.bgImage,
+    bgImage: apiContent?.ctaBg || ctaBandData.bgImage,
   };
 
-  // Mission/Vision Hydration
+  // 3. Strategic Identity (Mission/Vision) Hydration
   const mvApi = aboutContent?.missionVision;
   const mergedMV = {
     images: {
@@ -50,7 +54,7 @@ async function loadHomeViewModels() {
     motto: mvApi?.motto || mvFallback.motto,
   };
 
-  // Core Values Hydration
+  // 4. Core Values Hydration
   const valueItems = aboutContent?.coreValues?.items ?? [];
   const mergedValues = {
     items: valueItems.length > 0 
@@ -64,7 +68,7 @@ async function loadHomeViewModels() {
 
   return { 
     mergedHero, 
-    mergedCta, // Added back to the return object
+    mergedCta, 
     latestAnnouncements, 
     mergedMV, 
     mergedValues 
@@ -83,19 +87,20 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen">
       <div id="main-content">
+        {/* Dynamic Hero with Slideshow Support */}
         <Hero data={mergedHero} />
         
-        {/* Strategic Identity Section */}
+        {/* Strategic Identity Sections */}
         <MissionVision data={mergedMV} />
         <CoreValues data={mergedValues} />
         <StrategicGoals />
         
-        {/* News & Updates */}
+        {/* News & Updates - Only shows if data exists */}
         {latestAnnouncements.length > 0 && (
           <HomeAnnouncements announcements={latestAnnouncements} />
         )}
-        
-        {/* Now using hydrated data with API photo */}
+
+        {/* Closing Call to Action */}
         <CtaBand data={mergedCta} />
       </div>
     </main>
