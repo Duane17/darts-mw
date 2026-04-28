@@ -1,8 +1,8 @@
+// src/components/sections/home/Hero.tsx
 "use client";
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { SectionShell } from "@/components/common/SectionShell";
 import Link from "next/link";
 import { mediaUrl } from "@/lib/media";
@@ -43,31 +43,53 @@ export function Hero({ data }: HeroProps) {
       bgImage={bg}
       overlay="dark"
       diagonals
-      className="min-h-screen flex items-center bg-black/80"
+      className="min-h-screen flex items-center justify-center"
     >
-      <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
+      {/* Centered content */}
+      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="space-y-8 relative z-30"
+          className="space-y-6"
         >
-          <div className="space-y-6 bg-black/30 backdrop-blur-sm rounded-2xl p-8">
-            <Badge
-              variant="outline"
-              className="border-dam-gold bg-black/70 text-white font-medium tracking-wide backdrop-blur-sm"
-            >
-              {data.overline}
-            </Badge>
-            <h1 className="dam-heading dam-heading-xl font-heading text-white text-balance drop-shadow-lg">
-              {data.title}
-            </h1>
-            <p className="text-xl leading-relaxed text-white max-w-2xl drop-shadow-md">
-              {data.subtitle}
-            </p>
-          </div>
+          {/* Overline */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="text-dam-gold font-medium tracking-wider uppercase text-sm"
+          >
+            {data.overline}
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          {/* Main Title */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="font-heading text-5xl md:text-7xl font-bold leading-tight text-balance"
+          >
+            {data.title}
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="text-xl md:text-2xl leading-relaxed text-gray-200 max-w-3xl mx-auto text-pretty"
+          >
+            {data.subtitle}
+          </motion.p>
+
+          {/* Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center pt-6"
+          >
             <Link href="/about" passHref>
               <Button size="lg" className="bg-dam-green hover:bg-dam-green/90 text-white font-medium">
                 {data.primaryCta}
@@ -82,7 +104,7 @@ export function Hero({ data }: HeroProps) {
                 {data.secondaryCta}
               </Button>
             </Link>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </SectionShell>

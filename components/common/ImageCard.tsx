@@ -151,6 +151,7 @@ export function ImageCard({
           aria-expanded={expandable ? isExpanded : undefined}
           aria-label={expandable ? `${title} card` : undefined}
           onClick={href ? undefined : handleClick}
+          className="flex flex-col h-full min-h-[inherit]"
         >
           <div
             className="absolute inset-0 dam-bg-cover transition-transform duration-500 group-hover:scale-105"
@@ -160,7 +161,7 @@ export function ImageCard({
           />
           <motion.div
             layout
-            className={cn("relative z-20 flex flex-col justify-end p-6", textColorClasses[overlay])}
+            className={cn("relative z-20 flex flex-col justify-end p-6 flex-1", textColorClasses[overlay])}
             transition={{ type: "spring", stiffness: 240, damping: 26 }}
           >
             <div

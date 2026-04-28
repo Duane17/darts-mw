@@ -41,7 +41,6 @@ export function MissionVision({ data }: MissionVisionProps) {
               subtitle={data.vision}
               overlay="dark"
               height="xl"
-              className="h-auto"
               expandable
               expandBehavior="click"
               clampLines={3}
@@ -61,7 +60,6 @@ export function MissionVision({ data }: MissionVisionProps) {
               subtitle={data.mission}
               overlay="dark"
               height="xl"
-              className="h-auto"
               expandable
               expandBehavior="click"
               clampLines={3}
