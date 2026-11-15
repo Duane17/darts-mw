@@ -8,17 +8,17 @@ export const contactHero = {
 export const emails = [
   {
     role: "President",
-    email: "president@dartsmw.org",
+    email: "president@dartsmalawi.org",
     bgImage: "/images/contact/contact.jpg"
   },
   {
     role: "Admin",
-    email: "admin@dartsmw.org",
+    email: "admin@dartsmalawi.org",
     bgImage: "/images/contact/contact.jpg"
   },
   {
     role: "Technical",
-    email: "technical@dartsmw.org",
+    email: "technical@dartsmalawi.org",
     bgImage: "/images/contact/contact.jpg"
   },
 ]
