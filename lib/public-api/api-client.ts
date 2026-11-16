@@ -314,22 +314,16 @@ function invalidResponse(resource: string): never {
 }
 
 
-export async function getHomeContent(): Promise<HomeContent> {
-  return http.get("/content/home", {
-    cache: "no-store",
-    next: {revalidate: 0}
-  });
-}
-export async function getAboutContent(): Promise<AboutContent> {
-  return http.get("/content/about", {
-    cache: "no-store",
-    next: {revalidate: 0}
-  });
+/** CMS content: a 404 means "nothing saved yet", so return null and let pages use their built-in fallbacks. */
+async function getContent<T>(path: string): Promise<T | null> {
+  try {
+    return await http.get<T>(path, { cache: "no-store", next: { revalidate: 0 } });
+  } catch (err) {
+    if (err instanceof HttpError && err.status === 404) return null;
+    throw err;
+  }
 }
 
-export async function getAnnouncementsContent(): Promise<AnnouncementsContent> {
-  return http.get("/content/announcements", {
-    cache: "no-store",
-    next: { revalidate: 0 }
-  });
-}
+export const getHomeContent = () => getContent<HomeContent>("/content/home");
+export const getAboutContent = () => getContent<AboutContent>("/content/about");
+export const getAnnouncementsContent = () => getContent<AnnouncementsContent>("/content/announcements");

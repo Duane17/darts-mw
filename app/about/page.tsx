@@ -9,10 +9,10 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 async function loadAboutViewModels() {
-  const [apiContent, homeContent] = await Promise.all([
-    getAboutContent(),
-    getHomeContent()
-  ]);
+  // allSettled: an API outage should fall back to built-in content, not crash the page
+  const [about, home] = await Promise.allSettled([getAboutContent(), getHomeContent()]);
+  const apiContent = about.status === "fulfilled" ? about.value : null;
+  const homeContent = home.status === "fulfilled" ? home.value : null;
 
   const heroVm = {
     overline: aboutHeroFallback.overline,
