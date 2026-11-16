@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { SectionShell } from "@/components/common/SectionShell";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { cn } from "@/lib/utils";
-import { listFixturesPageCompat, type LeagueFilter, type LeagueCode } from "@/lib/public-api/api-client";
+import { listFixturesPageCompat, SEASON_OPTIONS, type LeagueFilter, type LeagueCode } from "@/lib/public-api/api-client";
 import type { Fixture } from "@/lib/public-api/api-types";
 import { toUiFixtureStatus } from "@/lib/public-api/api-types";
 import { mediaUrl } from "@/lib/public-api/media";
@@ -179,7 +179,7 @@ export default async function FixturesTimeline({
 
   const groups = groupByLocalDay(classified);
 
-  const seasons = [2025, 2024, 2023];
+  const seasons = SEASON_OPTIONS;
   const leagues: Array<LeagueFilter> = ["ALL", "CRDL", "SRDL"];
 
   const pages = data.pages || 1;

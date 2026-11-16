@@ -45,6 +45,8 @@ function qsFrom(obj: Record<string, string | number | boolean | undefined | null
 
 /** Default season for the public site */
 export const SEASON = process.env.NEXT_PUBLIC_SEASON ?? "2025";
+/** Season picker options: the default season and the two before it */
+export const SEASON_OPTIONS = [0, 1, 2].map((i) => parseInt(SEASON, 10) - i);
 
 /** Health */
 export async function getHealth(): Promise<Health> {

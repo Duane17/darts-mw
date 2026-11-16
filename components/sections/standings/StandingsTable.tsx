@@ -4,7 +4,7 @@ import { SectionShell } from "@/components/common/SectionShell";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { cn } from "@/lib/utils";
 import { mediaUrl } from "@/lib/public-api/media";
-import { getStandingsCompat, type LeagueCode } from "@/lib/public-api/api-client";
+import { getStandingsCompat, SEASON_OPTIONS, type LeagueCode } from "@/lib/public-api/api-client";
 import type { StandingRow } from "@/lib/public-api/api-types";
 
 /** Safely render a team cell with logo or initials */
@@ -209,7 +209,7 @@ export default async function StandingsTable({
     rows = [];
   }
 
-  const seasons = [2025, 2024, 2023];
+  const seasons = SEASON_OPTIONS;
   const grouped = splitIntoGroups(rows);
 
   return (

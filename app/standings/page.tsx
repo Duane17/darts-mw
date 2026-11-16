@@ -1,6 +1,7 @@
 // app/standings/page.tsx
 import type { Metadata, Viewport } from "next";
 import StandingsTable from "@/components/sections/standings/StandingsTable";
+import { SEASON } from "@/lib/public-api/api-client";
 
 export const revalidate = 60; // or use: export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ export default async function StandingsPage({
 }: {
   searchParams?: { seasonYear?: string; league?: string };
 }) {
-  const seasonYear = Number(searchParams?.seasonYear ?? "2025");
+  const seasonYear = Number(searchParams?.seasonYear ?? SEASON);
   const league = (searchParams?.league === "CRDL" ? "CRDL" : "SRDL") as "SRDL" | "CRDL";
 
   return (

@@ -4,7 +4,7 @@ import { SectionShell } from "@/components/common/SectionShell";
 import { SectionHeading } from "@/components/common/SectionHeading";
 import { cn } from "@/lib/utils";
 import { mediaUrl } from "@/lib/public-api/media";
-import { getStandings, type LeagueCode } from "@/lib/public-api/api-client";
+import { getStandings, SEASON_OPTIONS, type LeagueCode } from "@/lib/public-api/api-client";
 import type { StandingRow } from "@/lib/public-api/api-types";
 
 /** A small badge row for the last five results if you add it later */
@@ -52,7 +52,7 @@ export default async function StandingsTable({
   }
 
   // Seasons to show in the selector. Adjust as needed.
-  const seasons = [2025, 2024, 2023];
+  const seasons = SEASON_OPTIONS;
 
   return (
     <SectionShell bgImage="/images/cta/cta-bg.jpg" overlay="dark" className="py-20">
